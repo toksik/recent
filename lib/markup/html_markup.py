@@ -41,12 +41,6 @@ class HTMLMarkup(html.parser.HTMLParser):
             text = text.replace(key, value)
         self.out.put_text(text)
 
-    def handle_entityref(self, ref):
-        print('enitity: %s'%ref)
-
-    def handle_charref(self, ref):
-        print('enitity: %s'%ref)
-
     def handle_starttag(self, tag, attrs):
         if self.state == STATE_PRE:
             return
