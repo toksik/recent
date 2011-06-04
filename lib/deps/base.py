@@ -14,7 +14,8 @@ class Dependency:
 
     def _check(self):
         if int(time.time)-self.last_check < self.interval:
-            return 
+            return self.last_resp
+        self.last_check = int(time.time())
         for dep in self.deps:
             if not self.manager.deps[dep].check():
                 self.last_resp = False
