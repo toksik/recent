@@ -16,23 +16,24 @@ class RecentState:
             entry = '_'.join(parts[1:])
             if id not in self.values:
                 self.values[id] = []
-            if entry not in self.values[i]:
-                self.values[id].append(id)
+            if entry not in self.values[id]:
+                self.values[id].append(entry)
         f.close()
 
     def write(self):
         f = open(self.path, 'wb')
         for id, entries in self.values.items():
             for entry in entries:
-                f.write('%s_%s\n'%(id,entry))
+                text = '%s_%s\n'%(id,entry)
+                f.write(text.encode('utf-8'))
         f.close()
 
     def add(self, id, entry):
         self.read()
         if id not in self.values:
             self.values[id] = []
-        if entry not in self.values[i]:
-            self.values[id].append(id)
+        if entry not in self.values[id]:
+            self.values[id].append(entry)
         self.write()
 
     def check(self, id, entry):
