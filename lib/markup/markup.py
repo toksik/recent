@@ -22,10 +22,12 @@ def is_path(text):
         elif text[i] == '.':
             dot = i
     if dot != -1:
-        for ext in ['txt', 'zip', 'tar', 'mp3', 'ogg', 'wav', 'flac', 'html', 'htm', 'py', 'cpp', 'php']:
+        for ext in ['txt', 'zip', 'tar', 'mp3', 'ogg', 'wav', 'flac', 'html',
+                    'htm', 'py', 'cpp', 'php']:
             if text[dot:].startswith('.'+ext):
                 return True
-    for prefix in ['/etc/', '/tmp/', '/usr/', '/var', '/home', '/proc', '/sys/', '/media/', '/mnt/', '/bin/', '/sbin/', '/opt/']:
+    for prefix in ['/etc/', '/tmp/', '/usr/', '/var', '/home', '/proc',
+                   '/sys/', '/media/', '/mnt/', '/bin/', '/sbin/', '/opt/']:
         if text.startswith(prefix):
             return True
     count = 0
@@ -67,7 +69,8 @@ class FormattingMarkup:
                 else:
                     self.elements.append((ELEMENT_WORD, word))
                     word = ''
-            elif text[i] in ['.', ',', '!', '?', ':', ';', '(', ')', '/', '"', '\'']:
+            elif text[i] in ['.', ',', '!', '?', ':', ';', '(', ')', '/',
+                             '"', '\'']:
                 if not word:
                     if text[i] == '/' and is_path(text[i:]):
                         word = '/'
@@ -81,9 +84,11 @@ class FormattingMarkup:
                         word = word + text[i]
                 elif is_path(text[i-len(word):]):
                     word = word + text[i]
-                elif text[i] == '.' and text[i-1].isnumeric() and i < len(text) and text[i+1].isnumeric():
+                elif text[i] == '.' and text[i-1].isnumeric() \
+                         and i < len(text) and text[i+1].isnumeric():
                     word = word + text[i]
-                elif text[i] == ',' and text[i-1].isnumeric() and i < len(text) and text[i+1].isnumeric():
+                elif text[i] == ',' and text[i-1].isnumeric() \
+                         and i < len(text) and text[i+1].isnumeric():
                     word = word + text[i]
                 elif is_shortcut(text[i-len(word):]):
                     word = word + text[i]
@@ -111,7 +116,8 @@ class FormattingMarkup:
         if tmp:
             self.last_ref = len(self.elements)-1
         else:
-            if self.elements[self.last_ref][0] == ELEMENT_LINK and self.elements[self.last_ref][1] == ref:
+            if self.elements[self.last_ref][0] == ELEMENT_LINK \
+                   and self.elements[self.last_ref][1] == ref:
                 self.elements.pop(self.last_ref)
 
     def put_image(self, ref, name):
@@ -141,7 +147,8 @@ class FormattingMarkup:
         self.elements.append((ELEMENT_PARAGRAPH,))
 
     def put_pre(self, text):
-        if self.elements and self.elements[-1][0] == ELEMENT_PARAGRAPH or self.elements[-1][0] == ELEMENT_NEWLINE:
+        if self.elements and self.elements[-1][0] == ELEMENT_PARAGRAPH \
+               or self.elements[-1][0] == ELEMENT_NEWLINE:
             self.elements.pop(-1)
         self.elements.append((ELEMENT_PRE, text))
 
@@ -151,10 +158,12 @@ class FormattingMarkup:
             if item[0] == ELEMENT_WORD:
                 if i == 0:
                     out.put_text(item[1])
-                elif self.elements[i-1][0] in [ELEMENT_WORD, ELEMENT_LINK, ELEMENT_IMAGE]:
+                elif self.elements[i-1][0] in [ELEMENT_WORD, ELEMENT_LINK,
+                                               ELEMENT_IMAGE]:
                     out.put_text(' '+item[1])
                 elif self.elements[i-1][0] == ELEMENT_PUNCTUATION:
-                    if self.elements[i-1][1] in ['.', ',', '!', '?', ':', ';', ')']:
+                    if self.elements[i-1][1] in ['.', ',', '!', '?', ':',
+                                                 ';', ')']:
                         out.put_text(' '+item[1])
                     elif self.elements[i-1][1] in ['(', '/', '"', '\'']:
                         out.put_text(item[1])
@@ -305,12 +314,14 @@ class LogOutputColorMarkup:
 
     def put_image(self, url, name):
         self.refs.append(url)
-        self.buff = self.buff + ' \033[36mImage %i: "%s"\033[0m'%(len(self.refs), name)
+        self.buff = self.buff + ' \033[36mImage %i: "%s"\033[0m'%(
+            len(self.refs), name)
         
     def put_pre(self, text):
         self.buff = self.buff + '\n\n'
         for line in text.split('\n'):
             if not line:
                 continue
-            self.buff = self.buff + '\033(0x\033(B \033[1m' + line + '\033[0m\n'
+            self.buff = self.buff + '\033(0x\033(B \033[1m' + line + \
+                        '\033[0m\n'
         self.buff = self.buff + '\n'
