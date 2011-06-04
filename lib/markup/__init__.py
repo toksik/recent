@@ -1,5 +1,5 @@
-import html_markup
-import markup
+import lib.markup.html_markup
+import lib.markup.markup
 
 def html_to_log(text):
     hm = html_markup.HTMLMarkup(text)
