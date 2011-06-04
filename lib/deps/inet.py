@@ -9,6 +9,6 @@ class InetDep(Dependency):
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         res = p.stdout.read()
-        if '1 received' in res:
+        if b'1 received' in res:
             return True
         return False
