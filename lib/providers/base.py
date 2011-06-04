@@ -27,4 +27,4 @@ class Provider:
         for dep in self.deps:
             if not self.manager.deps[dep].check():
                 return False
-        return self.update(self):
+        return self.update()
