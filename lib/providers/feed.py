@@ -27,7 +27,7 @@ class FeedProvider(lib.providers.base.Provider):
         if not p.entries:
             return False
         author = p.feed.title
-        for entry in p.entries:
+        for entry in p.entries[::-1]:
             if 'link' not in entry or 'title' not in entry \
                    or self.manager.state.check(self.id, entry.link):
                 continue
