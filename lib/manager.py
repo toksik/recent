@@ -79,7 +79,7 @@ class Manager:
     def load_notifiers(self):
         notifiers = self.config.get('general', 'notifiers')
         if not notifiers:
-            notifiers = ['x11']
+            notifiers = ['x11', 'tmux']
         else:
             notifiers = [i.strip() for i in notifiers.split(',')]
         for id in notifiers:
