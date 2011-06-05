@@ -1,3 +1,5 @@
+import time
+
 import lib.providers
 import lib.deps
 import lib.notifier
@@ -97,8 +99,16 @@ class Manager:
             self.notifiers.append(cls(self, config))
 
     def notify(self, obj):
+        start = time.time()
         for notifier in self.notifiers:
             notifier._notify(obj)
+        if self.config.get('general','notify_time','').isnumeric():
+            wait_time = float(self.config.get('general','notify_wait'))
+        else:
+            wait_time = 4.0
+        diff = time.time() - start
+        if diff < wait_time:
+            time.sleep(wait_time - diff)
 
     def update(self):
         for provider in self.active:
