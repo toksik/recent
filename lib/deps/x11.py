@@ -1,6 +1,6 @@
 import subprocess
 
-from lib.dep.base import Dependency
+from lib.deps.base import Dependency
 
 class X11Dep(Dependency):
     id = 'x11'
