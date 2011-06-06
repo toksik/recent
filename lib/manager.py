@@ -11,24 +11,48 @@ class Notification:
     def __init__(self, provider, title, id, author=None, link=None, body=None,
                  tags=None):
         self.provider = provider
+        if not isinstance(self.provider, str):
+            self.provider = self.provider.decode('utf-8')
         self.title = title
+        if not isinstance(self.title, str):
+            self.title = self.title.decode('utf-8')
+        if not author:
+            author = ''
         self.author = author
+        if not isinstance(self.author, str):
+            self.author = self.author.decode('utf-8')
+        if not link:
+            link = ''
         self.link = link
+        if not isinstance(self.link, str):
+            self.link = self.link.decode('utf-8')
+        if not body:
+            body = ''
         self.body = body
+        if not isinstance(self.body, str):
+            self.body = self.body.decode('utf-8')
         self.id = id
+        if not isinstance(self.id, str):
+            self.id = self.id.decode('utf-8')
         if not tags:
-            self.tags = ['new', 'unread']
-        else:
-            self.tags = tags
+            tags = ['new', 'unread']
+        self.tags = []
+        for tag in tags:
+            if not isinstance(tag, str):
+                self.tags.append(tag.decode('utf-8'))
+            else:
+                self.tags.append(tag)
+        
 
 class Manager:
-    def __init__(self, config, state):
+    def __init__(self, config, state, log):
         self.providers = {}
         self.deps = {}
         self.notifiers = []
         self.active = []
         self.config = config
         self.state = state
+        self.log = log
 
     def get_new_deps(self, dep_list):
         deps = {}
@@ -99,6 +123,7 @@ class Manager:
             self.notifiers.append(cls(self, config))
 
     def notify(self, obj):
+        self.log.add(obj)
         start = time.time()
         for notifier in self.notifiers:
             notifier._notify(obj)
