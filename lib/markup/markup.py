@@ -228,10 +228,8 @@ class LogMarkup:
             if not line and not pgraph:
                 out.put_paragraph()
                 pgraph = True
-                print('pgraph')
                 continue
             elif not pgraph:
-                print('newline')
                 out.put_newline()
             elif line[0] == '|':
                 pre = pre + line[2:]
