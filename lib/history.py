@@ -73,8 +73,6 @@ class RecentLog:
                 f.write(text.encode('utf-8'))
             if item.body:
                 for line in item.body.split('\n'):
-                    if not line or line == '\n':
-                        continue
                     text = '  '+line+'\n'
                     f.write(text.encode('utf-8'))
             text = '<'+' '.join(item.tags)+'> %s\n'%item.id
@@ -82,6 +80,7 @@ class RecentLog:
         f.close()
 
     def add(self, item):
+        print(item.body.strip().encode('utf-8'))
         self.read()
         self.entries.append(item)
         self.write()
