@@ -260,7 +260,7 @@ class LogMarkup:
                     offset = end+2
                 elif line[next+2:next+5] == 'img':
                     split = line.find(' | ', next)
-                    url = line[next+3:split]
+                    url = line[next+6:split]
                     name = line[split+3:end-1]
                     out.put_image(url, name)
                     offset = end+2
