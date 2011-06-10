@@ -106,13 +106,13 @@ def do_read(args):
         else:
             lo = LogOutputMarkup(width=w-1)
         lm.parse(lo)
-    text = lo.buff.strip()
-    for _line in text.split('\n'):
-       if len(_line) < 2:
-           sys.stdout.buffer.write(b'\n')
-           continue
-       _line = ' '+_line+'\n'
-       sys.stdout.buffer.write(_line.encode('utf-8'))
+        text = lo.buff.strip()
+        for _line in text.split('\n'):
+            if len(_line) < 2:
+                sys.stdout.buffer.write(b'\n')
+                continue
+            _line = ' '+_line+'\n'
+            sys.stdout.buffer.write(_line.encode('utf-8'))
     exit(0)
 
 def open_url(url):
