@@ -78,6 +78,8 @@ class HTMLMarkup(html.parser.HTMLParser):
 
     def handle_data(self, data):
         if self.state == STATE_PRE:
+            for key,value in HTML_ENTITIES.items():
+                data = data.replace(key, value)
             self.out.put_pre(data)
         else:
             self.put_text(data)

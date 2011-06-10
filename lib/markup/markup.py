@@ -77,7 +77,7 @@ class FormattingMarkup:
                         continue
                     self.elements.append((ELEMENT_PUNCTUATION, text[i]))
                 elif is_link(text[i-len(word):]):
-                    if text[i] not in ['/', '.', ';', ':']:
+                    if text[i] not in ['/', '.', ';', ':', ',']:
                         self.put_link(word, tmp=True)
                         word = ''
                     else:
@@ -122,7 +122,9 @@ class FormattingMarkup:
 
     def put_image(self, ref, name):
         self.last_image = ref
+        self.put_paragraph()
         self.elements.append((ELEMENT_IMAGE, ref, name))
+        self.put_paragraph()
 
     def put_paragraph(self):
         if not self.elements:
@@ -144,12 +146,15 @@ class FormattingMarkup:
             return
         if self.elements[-1][0] == ELEMENT_NEWLINE:
             return
-        self.elements.append((ELEMENT_PARAGRAPH,))
+        self.elements.append((ELEMENT_NEWLINE,))
 
     def put_pre(self, text):
         if self.elements and self.elements[-1][0] == ELEMENT_PARAGRAPH \
                or self.elements[-1][0] == ELEMENT_NEWLINE:
             self.elements.pop(-1)
+        if self.elements and self.elements[-1][0] == ELEMENT_PRE:
+            self.elements[-1] = (ELEMENT_PRE, self.elements[-1][1] + text)
+            return
         self.elements.append((ELEMENT_PRE, text))
 
     def parse(self, out):
@@ -212,27 +217,30 @@ class LogMarkup:
     def put_pre(self, text):
         if not text:
             return
-        self.buff = self.buff + '\n\n'
+        self.buff = self.buff + '\n'
         for line in text.split('\n'):
             if not line:
                 continue
             self.buff = self.buff + '| %s\n'%line
-        self.buff = self.buff + '\n'
+        #self.buff = self.buff + '\n'
         
     def parse(self, out):
         if not self.buff:
             return
         pre = ''
-        pgraph = True
+        begin = True
+        pgraph = False
         for line in self.buff.split('\n'):
-            if not line and not pgraph:
+            if not line and not begin and not pgraph and not pre:
                 out.put_paragraph()
                 pgraph = True
                 continue
-            elif not pgraph:
+            elif not line.startswith('|') and not begin and not pgraph:
                 out.put_newline()
-            elif line[0] == '|':
-                pre = pre + line[2:]
+            begin = False
+            pgraph = False
+            if line and line[0] == '|':
+                pre = pre + line[2:] + '\n'
                 continue
             elif pre:
                 out.put_pre(pre)
@@ -247,7 +255,7 @@ class LogMarkup:
                     out.put_text(text)
                 end = line.find(']]', next)
                 if line[next+2:next+6] == 'link':
-                    url = line[next+3:end-1]
+                    url = line[next+7:end-1]
                     out.put_link(url)
                     offset = end+2
                 elif line[next+2:next+5] == 'img':
@@ -262,15 +270,43 @@ class LogMarkup:
             text = line[offset:]
             if text:
                 out.put_text(text)
-            pgraph = False
-                    
+
 class LogOutputMarkup:
-    def __init__(self):
+    def __init__(self, width=None):
         self.buff = ''
+        self.width = width
         self.refs = []
 
+    def get_spacing(self):
+        last = 0
+        if '\n' in self.buff:
+            last = self.buff.rfind('\n')+1
+        dist = len(self.buff) - last
+        return dist
+
     def put_text(self, text):
-        self.buff = self.buff + text
+        if not self.width:
+            self.buff = self.buff + text
+            return
+        lines = ['']
+        dist = self.get_spacing()
+        width = self.width - dist
+        if text and text[0] == ' ':
+            width = width - 1
+        for word in text.split(' '):
+            if len(word)+len(lines[-1])+1 <= width:
+                if len(lines[-1]) == 0:
+                    lines[-1] = lines[-1] + word
+                else:
+                    lines[-1] = lines[-1] + ' ' + word
+            else:
+                lines[-1] = lines[-1] + '\n'
+                lines.append(word)
+            if len(lines) > 1:
+                width = self.width
+        if text and text[0] == ' ':
+            lines[0] = ' ' + lines[0]
+        self.buff = self.buff + ''.join(lines)
 
     def put_paragraph(self):
         self.buff = self.buff + '\n\n'
@@ -280,46 +316,144 @@ class LogOutputMarkup:
 
     def put_link(self, url):
         self.refs.append(url)
-        self.buff = self.buff + ' [%i]'%len(self.refs)
+        if not self.width:
+            self.buff = self.buff + ' [%i]'%len(self.refs)
+        else:
+            dist = self.get_spacing()
+            if dist + len('[%i]'%len(self.refs)) > self.width:
+                self.buff = self.buff + '\n[%i]'%len(self.refs)
+            else:
+                self.buff = self.buff + ' [%i]'%len(self.refs)
 
     def put_image(self, url, name):
         self.refs.append(url)
-        self.buff = self.buff + ' Image %i: "%s"'%(len(self.refs), name)
+        if not self.width:
+            self.buff = self.buff + ' Image %i: "%s"'%(
+                len(self.refs), name)
+        else:
+            dist = self.get_spacing()
+            if dist + len('Image %i: "%s'%(len(self.refs),name)) > self.width:
+                self.buff = self.buff + '\nImage %i: "%s"'%(
+                    len(self.refs), name)
+            else:
+                self.buff = self.buff + ' Image %i: "%s"'%(
+                    len(self.refs), name)
         
     def put_pre(self, text):
-        self.buff = self.buff + '\n\n'
-        for line in text.split('\n'):
-            self.buff = self.buff + ' | ' + line + '\n'
         self.buff = self.buff + '\n'
-
-class LogOutputColorMarkup:
-    def __init__(self):
-        self.buff = ''
-        self.refs = []
-
-    def put_text(self, text):
-        self.buff = self.buff + text
-
-    def put_paragraph(self):
-        self.buff = self.buff + '\n\n'
-
-    def put_newline(self):
-        self.buff = self.buff + '\n'
-
-    def put_link(self, url):
-        self.refs.append(url)
-        self.buff = self.buff + ' \033[34m[%i]\033[0m'%len(self.refs)
-
-    def put_image(self, url, name):
-        self.refs.append(url)
-        self.buff = self.buff + ' \033[36mImage %i: "%s"\033[0m'%(
-            len(self.refs), name)
-        
-    def put_pre(self, text):
-        self.buff = self.buff + '\n\n'
         for line in text.split('\n'):
             if not line:
                 continue
-            self.buff = self.buff + '\033(0x\033(B \033[1m' + line + \
-                        '\033[0m\n'
+            if not self.width:
+                self.buff = self.buff + '| ' + line + '\n'
+            else:
+                lines = ['']
+                for word in line.split(' '):
+                    if len(word)+len(lines[-1])+1 <= self.width-2:
+                        if len(lines[-1]) == 0:
+                            lines[-1] = lines[-1] + word
+                        else:
+                            lines[-1] = lines[-1] + ' ' + word
+                    else:
+                        lines[-1] = '| ' + lines[-1] + '\n'
+                        lines.append(word)
+                lines[-1] = '| ' + lines[-1] + '\n'
+                self.buff = self.buff + ''.join(lines)
+        self.buff = self.buff + '\n'
+
+class LogOutputColorMarkup:
+    def __init__(self, width=None):
+        self.buff = ''
+        self.width = width
+        self.refs = []
+
+    def get_spacing(self):
+        last = 0
+        if '\n' in self.buff:
+            last = self.buff.rfind('\n')+1
+        dist = len(self.buff) - last
+        dist = dist - self.buff[last:].count('\033[34m')*5
+        dist = dist - self.buff[last:].count('\033[36m')*5
+        dist = dist - self.buff[last:].count('\033[0m')*4
+        dist = dist - self.buff[last:].count('\033(0')*3
+        dist = dist - self.buff[last:].count('\033(B')*3
+        return dist
+
+    def put_text(self, text):
+        if not self.width:
+            self.buff = self.buff + text
+            return
+        lines = ['']
+        dist = self.get_spacing()
+        width = self.width - dist
+        if text and text[0] == ' ':
+            width = width - 1
+        for word in text.split(' '):
+            if len(word)+len(lines[-1])+1 <= width:
+                if len(lines[-1]) == 0:
+                    lines[-1] = lines[-1] + word
+                else:
+                    lines[-1] = lines[-1] + ' ' + word
+            else:
+                lines[-1] = lines[-1] + '\n'
+                lines.append(word)
+            if len(lines) > 1:
+                width = self.width
+        if text and text[0] == ' ':
+            lines[0] = ' ' + lines[0]
+        self.buff = self.buff + ''.join(lines)
+
+    def put_paragraph(self):
+        self.buff = self.buff + '\n\n'
+
+    def put_newline(self):
+        self.buff = self.buff + '\n'
+
+    def put_link(self, url):
+        self.refs.append(url)
+        if not self.width:
+            self.buff = self.buff + ' \033[34m[%i]\033[0m'%len(self.refs)
+        else:
+            dist = self.get_spacing()
+            if dist + len('[%i]'%len(self.refs)) > self.width:
+                self.buff = self.buff + '\n\033[34m[%i]\033[0m'%len(self.refs)
+            else:
+                self.buff = self.buff + ' \033[34m[%i]\033[0m'%len(self.refs)
+
+    def put_image(self, url, name):
+        self.refs.append(url)
+        if not self.width:
+            self.buff = self.buff + ' \033[36mImage %i: "%s"\033[0m'%(
+                len(self.refs), name)
+        else:
+            dist = self.get_spacing()
+            if dist + len('Image %i: "%s'%(len(self.refs),name)) > self.width:
+                self.buff = self.buff + '\n\033[36mImage %i: "%s"\033[0m'%(
+                    len(self.refs), name)
+            else:
+                self.buff = self.buff + ' \033[36mImage %i: "%s"\033[0m'%(
+                    len(self.refs), name)
+        
+    def put_pre(self, text):
+        self.buff = self.buff + '\n'
+        for line in text.split('\n'):
+            if not line:
+                continue
+            if not self.width:
+                self.buff = self.buff + '\033(0x\033(B \033[1m' + line + \
+                            '\033[0m\n'
+            else:
+                lines = ['']
+                for word in line.split(' '):
+                    if len(word)+len(lines[-1])+1 <= self.width-2:
+                        if len(lines[-1]) == 0:
+                            lines[-1] = lines[-1] + word
+                        else:
+                            lines[-1] = lines[-1] + ' ' + word
+                    else:
+                        lines[-1] = '\033(0x\033(B \033[1m' + lines[-1] + \
+                                    '\033[0m\n'
+                        lines.append(word)
+                lines[-1] = '\033(0x\033(B \033[1m' + lines[-1] + '\033[0m\n'
+                self.buff = self.buff + ''.join(lines)
         self.buff = self.buff + '\n'

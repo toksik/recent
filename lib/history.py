@@ -52,6 +52,7 @@ class RecentLog:
                 elif line.startswith(b'<'):
                     tags = line[1:line.find(b'>')].split(b' ')
                     id = line[line.find(b'>')+2:-1]
+                    body = body.strip() # A dirty fix for newline problems
                     self.entries.append(Notification(provider, title, id,
                                         author, link, body, tags))
                     mode = 0
