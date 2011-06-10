@@ -81,7 +81,6 @@ class RecentLog:
         f.close()
 
     def add(self, item):
-        print(item.body.strip().encode('utf-8'))
         self.read()
         self.entries.append(item)
         self.write()
