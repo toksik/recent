@@ -128,7 +128,7 @@ class Manager:
         for notifier in self.notifiers:
             notifier._notify(obj)
         if self.config.get('general','notify_time','').isnumeric():
-            wait_time = float(self.config.get('general','notify_wait'))
+            wait_time = float(self.config.get('general','notify_time'))
         else:
             wait_time = 4.0
         diff = time.time() - start
