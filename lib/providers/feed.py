@@ -15,9 +15,8 @@ class FeedProvider(lib.providers.base.Provider):
         auth = HTTPBasicAuthHandler()
         if self.config['realm'] and self.config['user'] \
            and self.config['password']:
-            auth.add_password(realm=self.config['realm'],
-                              user=self.config['user'],
-                              passwd=self.config['password'])
+            auth.add_password(self.config['realm'], self.config['url'],
+                              self.config['user'], self.config['password'])
         opener = build_opener(auth)
         try:
             resp = opener.open(self.config['url'])
