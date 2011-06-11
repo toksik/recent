@@ -61,10 +61,12 @@ Please specify it by the --history/-l argument.\n')
     if not os.path.isfile(args.history):
         f = open(args.history, 'w')
         f.close()
-    m = get_manager(args.config, args.state, args.history)
     if args.fork:
         pid = os.fork()
         if pid == 0:
+            m = get_manager(args.config, args.state, args.history)
             run_daemon(m)
+        exit(0)
     else:
+        m = get_manager(args.config, args.state, args.history)
         run_daemon(m)

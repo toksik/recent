@@ -1,5 +1,6 @@
 import time
 import threading
+import signal
 
 import lib.providers
 import lib.deps
@@ -42,8 +43,7 @@ class Notification:
             if not isinstance(tag, str):
                 self.tags.append(tag.decode('utf-8'))
             else:
-                self.tags.append(tag)
-        
+                self.tags.append(tag)        
 
 class Manager:
     def __init__(self, config, state, log):
@@ -55,6 +55,15 @@ class Manager:
         self.config = config
         self.state = state
         self.log = log
+        signal.signal(signal.SIGTERM, self.terminate)
+        signal.signal(signal.SIGINT, self.terminate)
+
+    def terminate(self, *args):
+        signal.signal(signal.SIGTERM, self.terminate)
+        signal.signal(signal.SIGINT, self.terminate)
+        for provider in self.active:
+            provider._deactivate()
+        exit(0)
 
     def get_new_deps(self, dep_list):
         deps = {}
@@ -103,7 +112,7 @@ class Manager:
                 elif interval in INTERVAL:
                     self.providers[id].interval = INTERVAL[interval]
             self.active.append(self.providers[id])
-            self.providers[id].activate()
+            self.providers[id]._activate()
             
     def load_notifiers(self):
         notifiers = self.config.get('general', 'notifiers')
@@ -141,5 +150,7 @@ class Manager:
         self.lock.release()
 
     def update(self):
+        signal.signal(signal.SIGTERM, self.terminate)
+        signal.signal(signal.SIGINT, self.terminate)
         for provider in self.active:
             provider._update()

@@ -10,12 +10,28 @@ class Provider:
         self.manager = manager
         self.config = config
         self.last_update = 0
+        self.active = False
 
     def activate(self):
         pass
 
+    def _activate(self):
+        if self.active:
+            return
+        for dep in self.deps:
+            if not self.manager.deps[dep].check():
+                return
+        self.active = True
+        self.activate()
+
     def deactivate(self):
         pass
+
+    def _deactivate(self):
+        if not self.active:
+            return
+        self.active = False
+        self.deactivate()
 
     def update(self):
         pass
@@ -26,5 +42,7 @@ class Provider:
         self.last_update = int(time.time())
         for dep in self.deps:
             if not self.manager.deps[dep].check():
+                self._deactivate()
                 return False
+        self._activate()
         return self.update()
