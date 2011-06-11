@@ -29,6 +29,7 @@ class RecentState:
         f.close()
 
     def add(self, id, entry):
+        id = id.replace('_', '-')
         self.read()
         if id not in self.values:
             self.values[id] = []
@@ -37,6 +38,7 @@ class RecentState:
         self.write()
 
     def check(self, id, entry):
+        id = id.replace('_', '-')
         self.read()
         if id in self.values and entry in self.values[id]:
             return True
