@@ -101,6 +101,7 @@ class Manager:
                 elif interval in INTERVAL:
                     self.providers[id].interval = INTERVAL[interval]
             self.active.append(self.providers[id])
+            self.providers[id].activate()
             
     def load_notifiers(self):
         notifiers = self.config.get('general', 'notifiers')
