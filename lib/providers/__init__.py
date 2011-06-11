@@ -5,4 +5,7 @@ def get_class(id):
     elif id == 'statusnet':
         import lib.providers.statusnet
         return lib.providers.statusnet.StatusnetProvider
+    elif id == 'xmpp':
+        import lib.providers.xmpp
+        return lib.providers.xmpp.XMPPProvider
     return None
