@@ -46,11 +46,18 @@ def is_shortcut(text):
             return True
     return False
 
+def is_smiley(text):
+    for smiley in [':)',':-)',':(',':-(',':O',':0']: # to be continued
+        if text.startswith(smiley):
+            return True
+    return False
+
 class FormattingMarkup:
-    def __init__(self):
+    def __init__(self, newlines=True):
         self.elements = []
         self.last_ref = 0
         self.last_image = ''
+        self.newlines = newlines
 
     def put_text(self, text, protect=False):
         if not text:
@@ -92,6 +99,8 @@ class FormattingMarkup:
                     word = word + text[i]
                 elif is_shortcut(text[i-len(word):]):
                     word = word + text[i]
+                elif is_smiley(text[i-len(word):]):
+                    word = word + text[i]
                 else:
                     self.elements.append((ELEMENT_WORD, word))
                     word = ''
@@ -127,6 +136,8 @@ class FormattingMarkup:
         self.put_paragraph()
 
     def put_paragraph(self):
+        if not self.newlines:
+            return
         if not self.elements:
             return
         if self.elements[-1][0] == ELEMENT_PARAGRAPH:
@@ -138,6 +149,8 @@ class FormattingMarkup:
         self.elements.append((ELEMENT_PARAGRAPH,))
 
     def put_newline(self):
+        if not self.newlines:
+            return
         if not self.elements:
             return
         if self.elements[-1][0] == ELEMENT_PARAGRAPH:
