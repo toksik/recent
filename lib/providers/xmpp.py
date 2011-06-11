@@ -1,5 +1,5 @@
 import lib.providers.base
-import lib.markup
+import lib.markup.markup
 from lib.manager import Notification
 
 import sleekxmpp
@@ -20,7 +20,11 @@ class XMPPProvider(lib.providers.base.Provider):
 
     def message_handler(self, msg):
         if msg['type'] == 'chat':
-            body = msg['body']
+            m = lib.markup.markup.LogMarkup()
+            fm = lib.markup.markup.FormattingMarkup(newlines=False)
+            fm.put_text(msg['body'])
+            fm.parse(m)
+            body = m.buff
             n = Notification(provider=self.name, id=msg['id'], title=body,
                              author=msg['from'].user)
             self.manager.notify(n)
