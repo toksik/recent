@@ -20,19 +20,6 @@ def get_defhistory():
         return None
     return os.path.join(os.getenv('HOME'), '.recent.log')
 
-def crop(text, space, width):
-    width = width - space
-    lines = ['']
-    for word in text.split(' '):
-        if len(word)+len(lines[-1])+1 <= width:
-            if len(lines[-1]) == 0:
-                lines[-1] = lines[-1] + word
-            else:
-                lines[-1] = lines[-1] + ' ' + word
-        else:
-            lines.append(word)
-    return lines
-
 def do_list(args):
     w, h = get_ttywh()
     hist = lib.history.RecentLog(args.history)
@@ -44,10 +31,14 @@ def do_list(args):
     else:
         counter = len(hist.entries) - 1
     for entry in hist.entries[start:]:
+        lm = LogMarkup()
+        lo = LogOutputMarkup(width=0)
+        lm.buff = entry.title
+        lm.parse(lo)
         if not entry.author:
-            head = '[%s] %s'%(entry.provider, entry.title)
+            head = '[%s] %s'%(entry.provider, lo.buff)
         else:
-            head = '[%s] %s: %s'%(entry.provider, entry.author, entry.title)
+            head = '[%s] %s: %s'%(entry.provider, entry.author, lo.buff)
         if counter < 10:
             begin = '(  %i)'%counter
         elif counter < 100:
@@ -90,14 +81,21 @@ def do_read(args):
     if 'unread' in entry.tags:
         entry.tags.remove('unread')
     hist.write()
+    lm = LogMarkup()
+    if args.color:
+        lo = LogOutputColorMarkup(width=w)
+    else:
+        lo = LogOutputMarkup(width=w)
     if entry.author:
         head = '[%s] %s: %s'%(entry.provider, entry.author, entry.title)
     else:
         head = '[%s] %s'%(entry.provider, entry.title)
-    lines = crop(head, 2, w)
-    for line in lines:
-        line = '%s\n'%line
-        sys.stdout.buffer.write(line.encode('utf-8'))
+    lm.buff = head
+    lm.parse(lo)
+    text = lo.buff
+    if not text.endswith('\n'):
+        text = text + '\n'
+    sys.stdout.buffer.write(text.encode('utf-8'))
     if entry.body:
         lm = LogMarkup()
         lm.buff = entry.body
@@ -129,8 +127,13 @@ def do_open(args):
     entry = hist.entries[::-1][args.num]
     if 'link' in args and args.link != None:
         lm = LogMarkup()
+        lm.buff = entry.title
+        _lo = LogOutputMarkup(width=0)
+        lm.parse(_lo)
+        lm = LogMarkup()
         lm.buff = entry.body
         lo = LogOutputMarkup(width=0)
+        lo.refs = list(_lo.refs)
         lm.parse(lo)
         open_url(lo.refs[args.link-1])
     elif entry.link:
