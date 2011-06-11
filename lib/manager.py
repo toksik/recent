@@ -1,4 +1,5 @@
 import time
+import threading
 
 import lib.providers
 import lib.deps
@@ -46,6 +47,7 @@ class Notification:
 
 class Manager:
     def __init__(self, config, state, log):
+        self.lock = threading.Lock()
         self.providers = {}
         self.deps = {}
         self.notifiers = []
@@ -124,6 +126,7 @@ class Manager:
             self.notifiers.append(cls(self, config))
 
     def notify(self, obj):
+        self.lock.acquire()
         self.log.add(obj)
         start = time.time()
         for notifier in self.notifiers:
@@ -135,6 +138,7 @@ class Manager:
         diff = time.time() - start
         if diff < wait_time:
             time.sleep(wait_time - diff)
+        self.lock.release()
 
     def update(self):
         for provider in self.active:
