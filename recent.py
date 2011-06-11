@@ -53,8 +53,6 @@ def do_list(args):
                 line = '%s \033[36m%s\033[0m\n'%(begin, _head)
             else:
                 line = '%s \033[0m%s\033[0m\n'%(begin, _head)
-            if 'unread' in entry.tags and len(head) <= w-(len(begin)+1):
-                entry.tags.remove('unread')
         else:
             head = head[:w-(len(begin)+4)]
             if 'new' in entry.tags and 'unread' in entry.tags:
@@ -63,8 +61,9 @@ def do_list(args):
                 line = '%s  u %s\n'%(begin, head)
             else:
                 line = '%s    %s\n'%(begin, head)
-            if 'unread' in entry.tags and len(head) <= w-(len(begin)+4):
-                entry.tags.remove('unread')
+        if 'unread' in entry.tags and len(head) <= w-(len(begin)+4) and \
+               not entry.body:
+            entry.tags.remove('unread')
         sys.stdout.buffer.write(line.encode('utf-8'))
         if 'new' in entry.tags:
             entry.tags.remove('new')
