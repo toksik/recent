@@ -138,6 +138,31 @@ def do_open(args):
     elif entry.link:
         open_url(entry.link)
 
+def do_get(args):
+    hist = lib.history.RecentLog(args.history)
+    hist.read()
+    if args.name == 'new_count':
+        count = 0
+        for entry in hist.entries:
+            if 'new' in entry.tags:
+                count += 1
+        print(count)
+    elif args.name == 'unread_count':
+        count = 0
+        for entry in hist.entries:
+            if 'unread' in entry.tags:
+                count += 1
+        print(count)
+    elif args.name == 'stats':
+        new_count = 0
+        unread_count = 0
+        for entry in hist.entries:
+            if 'new' in entry.tags:
+                new_count += 1
+            if 'unread' in entry.tags:
+                unread_count += 1
+        print('%i/%i'%(new_count, unread_count))
+
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description='Tool for reading the news logs \
 of the recent daemon.')
@@ -165,6 +190,12 @@ of the recent daemon.')
     open_p.add_argument('--history', '-l', default=get_defhistory(),
                         help='Use another history file than $HOME/recent.log')
     open_p.set_defaults(func=do_open)
+    get_p = subparser.add_parser('get',
+                 help='Get various pieces of information (useful for swripts)')
+    get_p.add_argument('name')
+    get_p.add_argument('--history', '-l', default=get_defhistory(),
+                        help='Use another history file than $HOME/recent.log')
+    get_p.set_defaults(func=do_get)
     args = p.parse_args()
     if not os.path.isfile(args.history):
         f = open(args.history, 'w')
