@@ -1,10 +1,10 @@
-import lib.providers.base
-import lib.markup.markup
-from lib.manager import Notification
+import recent.providers.base
+import recent.markup.markup
+from recent.manager import Notification
 
 import sleekxmpp
 
-class XMPPProvider(lib.providers.base.Provider):
+class XMPPProvider(recent.providers.base.Provider):
     name = 'XMPP'
     deps = ['inet']
     config_keys = ['jid', 'password', 'priority']
@@ -20,8 +20,8 @@ class XMPPProvider(lib.providers.base.Provider):
 
     def message_handler(self, msg):
         if msg['type'] == 'chat':
-            m = lib.markup.markup.LogMarkup()
-            fm = lib.markup.markup.FormattingMarkup(newlines=False)
+            m = recent.markup.markup.LogMarkup()
+            fm = recent.markup.markup.FormattingMarkup(newlines=False)
             fm.put_text(msg['body'])
             fm.parse(m)
             body = m.buff

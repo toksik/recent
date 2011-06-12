@@ -1,10 +1,10 @@
-import lib.providers.base
-import lib.markup
-from lib.manager import Notification
+import recent.providers.base
+import recent.markup
+from recent.manager import Notification
 
 import feedparser
 
-class StatusnetProvider(lib.providers.base.Provider):
+class StatusnetProvider(recent.providers.base.Provider):
     name = 'Statusnet'
     deps = ['inet']
     config_keys = ['api', 'user', 'deny_tags']
@@ -45,7 +45,7 @@ comma-seperated list of these tags.
             if 'content' in entry and entry.content and \
                    'value' in entry.content[0]:
                 if entry.content[0].type == 'text/html':
-                    body = lib.markup.html_to_log(entry.content[0].value,
+                    body = recent.markup.html_to_log(entry.content[0].value,
                                                   reformat=False,
                                                   newlines=False)
                 else:

@@ -1,9 +1,22 @@
-#!/usr/bin/python3
-import lib.history
-from lib.markup.markup import LogMarkup, LogOutputMarkup, LogOutputColorMarkup
+#!/usr/bin/python
 
-import os
 import sys
+import os
+
+for path in sys.path:
+    if not os.path.isdir(path):
+        continue
+    if os.path.samefile(path, os.path.split(sys.argv[0])[0]):
+        sys.path.remove(path)
+if os.path.samefile(os.getcwd(), os.path.split(sys.argv[0])[0]):
+   sys.path.append('..')
+else:
+   sys.path.append(os.getcwd())
+
+import recent.history
+from recent.markup.markup import LogMarkup, LogOutputMarkup
+from recent.markup.markup import LogOutputColorMarkup
+
 import argparse
 import struct
 import termios
@@ -22,7 +35,7 @@ def get_defhistory():
 
 def do_list(args):
     w, h = get_ttywh()
-    hist = lib.history.RecentLog(args.history)
+    hist = recent.history.RecentLog(args.history)
     hist.read()
     start = 0
     if len(hist.entries) > args.num:
@@ -72,7 +85,7 @@ def do_list(args):
 
 def do_read(args):
     w, h = get_ttywh()
-    hist = lib.history.RecentLog(args.history)
+    hist = recent.history.RecentLog(args.history)
     hist.read()
     entry = hist.entries[::-1][args.num]
     if 'new' in entry.tags:
@@ -121,7 +134,7 @@ def open_url(url):
                          stderr=subprocess.PIPE)
 
 def do_open(args):
-    hist = lib.history.RecentLog(args.history)
+    hist = recent.history.RecentLog(args.history)
     hist.read()
     entry = hist.entries[::-1][args.num]
     if 'link' in args and args.link != None:
@@ -139,7 +152,7 @@ def do_open(args):
         open_url(entry.link)
 
 def do_get(args):
-    hist = lib.history.RecentLog(args.history)
+    hist = recent.history.RecentLog(args.history)
     hist.read()
     if args.name == 'new_count':
         count = 0

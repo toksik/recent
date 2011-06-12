@@ -1,14 +1,14 @@
 import subprocess
 import time
 
-import lib.markup.markup
-from lib.notifier.base import Notifier
+import recent.markup.markup
+from recent.notifier.base import Notifier
 
 class TmuxNotifier(Notifier):
     id = 'tmux'
     def notify(self, item):
-        lm = lib.markup.markup.LogMarkup()
-        lo = lib.markup.markup.LogOutputMarkup(width=0)
+        lm = recent.markup.markup.LogMarkup()
+        lo = recent.markup.markup.LogOutputMarkup(width=0)
         lm.buff = item.title
         lm.parse(lo)
         if item.author:

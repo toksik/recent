@@ -1,6 +1,6 @@
 import html.parser
 import html.entities
-import lib.markup
+import recent.markup
 
 STATE_NONE = 0
 STATE_LINK = 1

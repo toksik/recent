@@ -1,6 +1,6 @@
 import subprocess
 
-from lib.deps.base import Dependency
+from recent.deps.base import Dependency
 
 class InetDep(Dependency):
     id = 'inet'

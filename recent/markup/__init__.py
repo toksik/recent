@@ -1,12 +1,12 @@
-import lib.markup.html_markup
-import lib.markup.markup
+import recent.markup.html_markup
+import recent.markup.markup
 
 def html_to_log(text, newlines=True, reformat=True):
     '''Converts html code to log markup'''
-    hm = html_markup.HTMLMarkup(text)
-    m = markup.LogMarkup()
+    hm = recent.markup.html_markup.HTMLMarkup(text)
+    m = recent.markup.markup.LogMarkup()
     if reformat:
-        c = markup.FormattingMarkup(newlines=newlines)
+        c = recent.markup.markup.FormattingMarkup(newlines=newlines)
         hm.parse(c)
         c.parse(m)
     else:

@@ -1,11 +1,11 @@
-import lib.providers.base
-import lib.markup
-from lib.manager import Notification
+import recent.providers.base
+import recent.markup
+from recent.manager import Notification
 
 from urllib.request import HTTPBasicAuthHandler, HTTPError, build_opener
 import feedparser
 
-class FeedProvider(lib.providers.base.Provider):
+class FeedProvider(recent.providers.base.Provider):
     name = 'Feed'
     deps = ['inet']
     config_keys = ['url', 'user', 'password', 'realm']
@@ -48,7 +48,7 @@ If it is password protected by HTTP Basic Authentification, "user",
             body = None
             if 'content' in entry and entry.content:
                 if entry.content[0].type == 'text/html':
-                    body = lib.markup.html_to_log(entry.content[0].value)
+                    body = recent.markup.html_to_log(entry.content[0].value)
                 else:
                     body = entry.content[0].value
             self.manager.state.add(self.id, entry.link)

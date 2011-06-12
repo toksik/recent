@@ -1,7 +1,7 @@
 import configparser
 
 def default_config():
-    import lib.providers
+    import recent.providers
     buff = '''\
 ## Syntax:
 # The config file is structured using section. A section always begins with
@@ -61,8 +61,8 @@ def default_config():
 # newlines and has to be unique.
 #
 '''
-    for id in lib.providers.PROVIDERS:
-        provider = lib.providers.get_class(id)
+    for id in recent.providers.PROVIDERS:
+        provider = recent.providers.get_class(id)
         if not provider:
             continue
         buff = buff + '## The provider "%s"\n'%id

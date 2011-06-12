@@ -2,8 +2,8 @@ import subprocess
 import os
 import time
 
-import lib.markup.markup
-from lib.notifier.base import Notifier
+import recent.markup.markup
+from recent.notifier.base import Notifier
 
 class X11Notifier(Notifier):
     id = 'x11notify'
@@ -14,8 +14,8 @@ class X11Notifier(Notifier):
             os.putenv('DISPLAY', self.config['display'])
         elif 'DISPLAY' not in os.environ:
             os.putenv('DISPLAY', ':0')
-        lm = lib.markup.markup.LogMarkup()
-        lo = lib.markup.markup.LogOutputMarkup(width=0)
+        lm = recent.markup.markup.LogMarkup()
+        lo = recent.markup.markup.LogOutputMarkup(width=0)
         lm.buff = item.title
         lm.parse(lo)
         title = lo.buff

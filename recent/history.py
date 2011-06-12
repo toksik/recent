@@ -1,4 +1,4 @@
-from lib.manager import Notification
+from recent.manager import Notification
 
 class RecentLog:
     '''\

@@ -1,14 +1,25 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
-import lib.config
-import lib.state
-import lib.history
-import lib.manager
+import sys
+import os
+
+for path in sys.path:
+    if not os.path.isdir(path):
+        continue
+    if os.path.samefile(path, os.path.split(sys.argv[0])[0]):
+        sys.path.remove(path)
+if os.path.samefile(os.getcwd(), os.path.split(sys.argv[0])[0]):
+   sys.path.append('..')
+else:
+   sys.path.append(os.getcwd())
+
+import recent.config
+import recent.state
+import recent.history
+import recent.manager
 
 import argparse
 import time
-import os
-import sys
 
 def get_defpath(name):
     if not os.getenv('HOME'):
@@ -16,10 +27,10 @@ def get_defpath(name):
     return os.path.join(os.getenv('HOME'), name)
 
 def get_manager(config, state, history):
-    conf_obj = lib.config.RecentConf(config)
-    state_obj = lib.state.RecentState(state)
-    hist_obj = lib.history.RecentLog(history)
-    manager = lib.manager.Manager(conf_obj, state_obj, hist_obj)
+    conf_obj = recent.config.RecentConf(config)
+    state_obj = recent.state.RecentState(state)
+    hist_obj = recent.history.RecentLog(history)
+    manager = recent.manager.Manager(conf_obj, state_obj, hist_obj)
     manager.load_providers()
     manager.load_notifiers()
     return manager
@@ -48,7 +59,7 @@ then.''')
 Please specify it by the --config/-c argument.\n')
     if not os.path.isfile(args.config):
         f = open(args.config, 'w')
-        f.write(lib.config.default_config())
+        f.write(recent.config.default_config())
         f.close()
     if not args.state:
         sys.stderr.write('Error while generating the state file path.\n\

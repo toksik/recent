@@ -2,9 +2,9 @@ import time
 import threading
 import signal
 
-import lib.providers
-import lib.deps
-import lib.notifier
+import recent.providers
+import recent.deps
+import recent.notifier
 
 INTERVAL = {'instant':0, 'minute':60, 'halfhour':1800, 'hour':36000,
             'halfday':43200, 'day':86400}
@@ -66,9 +66,9 @@ called. While running call update() periodically.
         '''\
 Creates a new Manager instance
 
-  config -> a lib.config.RecentConf instance
-  state -> a lib.state.RecentState instance
-  log -> a lib.history.RecentLog instance
+  config -> a recent.config.RecentConf instance
+  state -> a recent.state.RecentState instance
+  log -> a recent.history.RecentLog instance
 
 It will register own handlers on the signals SIGTERM and SIGINT.'''
         self.lock = threading.Lock()
@@ -101,7 +101,7 @@ It returns a list of the dependency classes that are required.'''
         for dep in dep_list:
             if dep in deps or dep in self.deps:
                 continue
-            dep_cls = lib.deps.get_class(dep)
+            dep_cls = recent.deps.get_class(dep)
             if not dep_cls:
                 return 
             deps[dep] = dep_cls
@@ -111,7 +111,7 @@ It returns a list of the dependency classes that are required.'''
                 for dep in item.deps:
                     if dep in new_deps or dep in deps or dep in self.deps:
                         continue
-                    dep_cls = lib.deps.get_class(dep)
+                    dep_cls = recent.deps.get_class(dep)
                     if not dep_cls:
                         return
                     new_deps[dep] = dep_cls
@@ -125,7 +125,7 @@ It returns a list of the dependency classes that are required.'''
         '''Loads and activates all configured providers'''
         for id in self.config.index():
             type = self.config.get(id, 'type')
-            cls = lib.providers.get_class(type)
+            cls = recent.providers.get_class(type)
             if not cls:
                 continue
             config = {}
@@ -154,7 +154,7 @@ It returns a list of the dependency classes that are required.'''
         else:
             notifiers = [i.strip() for i in notifiers.split(',')]
         for id in notifiers:
-            cls = lib.notifier.get_class(id)
+            cls = recent.notifier.get_class(id)
             if not cls:
                 continue
             config = {}
