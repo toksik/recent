@@ -9,6 +9,19 @@ class StatusnetProvider(lib.providers.base.Provider):
     deps = ['inet']
     config_keys = ['api', 'user', 'deny_tags']
     interval = 60
+    config_doc = '''
+The statusnet provider can get new messages from identi.ca or other statusnet
+servers.
+
+For an account at identi.ca use
+
+ api="https://identi.ca/api"
+
+The \'api\' and the \'user\' keys are required.
+
+If you want to filter out some tags set the \'deny_tags\' option to an
+comma-seperated list of these tags.
+'''
     def is_valid(self, tags):
         if self.config['deny_tags']:
             denied = [s.strip() for s in self.config['allow_tags'].split(',')]

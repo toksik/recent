@@ -4,6 +4,7 @@ class Provider:
     name = 'None'
     deps = []
     config_keys = []
+    config_doc = ''
     interval = 3600
     def __init__(self, id, manager, config):
         self.id = id

@@ -1,3 +1,5 @@
+PROVIDERS = ['feed', 'statusnet', 'xmpp']
+
 def get_class(id):
     if id == 'feed':
         import lib.providers.feed

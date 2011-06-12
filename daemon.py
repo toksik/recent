@@ -48,6 +48,7 @@ then.''')
 Please specify it by the --config/-c argument.\n')
     if not os.path.isfile(args.config):
         f = open(args.config, 'w')
+        f.write(lib.config.default_config())
         f.close()
     if not args.state:
         sys.stderr.write('Error while generating the state file path.\n\

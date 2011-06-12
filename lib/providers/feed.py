@@ -9,6 +9,18 @@ class FeedProvider(lib.providers.base.Provider):
     name = 'Feed'
     deps = ['inet']
     config_keys = ['url', 'user', 'password', 'realm']
+    config_doc = '''\
+The only required key is "url":
+
+ url="http://example.com/myfeed"
+
+If it is password protected by HTTP Basic Authentification, "user",
+"password", and "realm" has to be specified too.
+
+ user="myuser"
+ password="secret"
+ realm="realm"
+'''
     def update(self):
         if not self.config['url']:
             return None
