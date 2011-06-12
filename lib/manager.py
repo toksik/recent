@@ -12,6 +12,16 @@ INTERVAL = {'instant':0, 'minute':60, 'halfhour':1800, 'hour':36000,
 class Notification:
     def __init__(self, provider, title, id, author=None, link=None, body=None,
                  tags=None):
+        '''\
+Create a new Notification instance
+
+  provider -> the (human readable) name of the source provider
+  title -> the post\'s title
+  id -> the post\'s id
+  author -> the author of the post
+  link -> the link to the original post
+  body -> the content of the post
+  tags -> a list of tags like "unread" or "new"'''
         self.provider = provider
         if not isinstance(self.provider, str):
             self.provider = self.provider.decode('utf-8')
@@ -46,7 +56,21 @@ class Notification:
                 self.tags.append(tag)        
 
 class Manager:
+    '''\
+Class for managing providers and notifiers and scheduling their updates
+
+After initialisation load_provdiers() and load_notifiers() should be
+called. While running call update() periodically.
+'''
     def __init__(self, config, state, log):
+        '''\
+Creates a new Manager instance
+
+  config -> a lib.config.RecentConf instance
+  state -> a lib.state.RecentState instance
+  log -> a lib.history.RecentLog instance
+
+It will register own handlers on the signals SIGTERM and SIGINT.'''
         self.lock = threading.Lock()
         self.providers = {}
         self.deps = {}
@@ -59,6 +83,7 @@ class Manager:
         signal.signal(signal.SIGINT, self.terminate)
 
     def terminate(self, *args):
+        '''Internal signal handler that deactivates all providers'''
         signal.signal(signal.SIGTERM, self.terminate)
         signal.signal(signal.SIGINT, self.terminate)
         for provider in self.active:
@@ -66,6 +91,12 @@ class Manager:
         exit(0)
 
     def get_new_deps(self, dep_list):
+        '''\
+Resolves recursively all dependencies of the given dependencies
+
+  dep_list -> list of dependency names
+
+It returns a list of the dependency classes that are required.'''
         deps = {}
         for dep in dep_list:
             if dep in deps or dep in self.deps:
@@ -91,6 +122,7 @@ class Manager:
         return deps
 
     def load_providers(self):
+        '''Loads and activates all configured providers'''
         for id in self.config.index():
             type = self.config.get(id, 'type')
             cls = lib.providers.get_class(type)
@@ -115,6 +147,7 @@ class Manager:
             self.providers[id]._activate()
             
     def load_notifiers(self):
+        '''Loads all notifiers'''
         notifiers = self.config.get('general', 'notifiers')
         if not notifiers:
             notifiers = ['x11', 'tmux']
@@ -135,6 +168,14 @@ class Manager:
             self.notifiers.append(cls(self, config))
 
     def notify(self, obj):
+        '''\
+Handles a new post
+
+  obj -> a Notification object
+
+It passes the given notification to all active notifiers and stores
+it in the history log. Note that it will block the configured
+"notify_time" (default 4 seconds).'''
         self.lock.acquire()
         self.log.add(obj)
         start = time.time()
@@ -150,6 +191,7 @@ class Manager:
         self.lock.release()
 
     def update(self):
+        '''Updates all providers that needs to'''
         signal.signal(signal.SIGTERM, self.terminate)
         signal.signal(signal.SIGINT, self.terminate)
         for provider in self.active:

@@ -2,6 +2,7 @@ import lib.markup.html_markup
 import lib.markup.markup
 
 def html_to_log(text, newlines=True, reformat=True):
+    '''Converts html code to log markup'''
     hm = html_markup.HTMLMarkup(text)
     m = markup.LogMarkup()
     if reformat:

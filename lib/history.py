@@ -1,11 +1,25 @@
 from lib.manager import Notification
 
 class RecentLog:
+    '''\
+The RecentLog class parses and writes history files.
+
+They are used to store the news posts persistently, so that they can be
+read later (e.g. by the recent util).'''
     def __init__(self, path):
+        '''\
+Creates a new RecentLog instance
+
+  path -> the path of the log/history file
+
+The file will be read on demand. After calling read() all
+entries in the file can be found in the self.entries property. They
+are stored as lib.manager.Notification instances.'''
         self.path = path
         self.entries = []
 
     def read(self):
+        '''Parse the log file and populate self.entries'''
         f = open(self.path, 'rb')
         self.entries = []
         mode = 0
@@ -59,6 +73,10 @@ class RecentLog:
         f.close()
 
     def write(self):
+        '''\
+Write all objects in self.entries to the log file
+
+If there are more than 200 entries the oldest are ignored.'''
         f = open(self.path, 'wb')
         if len(self.entries) > 200:
             self.entries = self.entries[len(self.entries)-200:]
@@ -81,6 +99,12 @@ class RecentLog:
         f.close()
 
     def add(self, item):
+        '''\
+Add a post to the file
+
+  item -> a Notification instance
+
+The file will be read before adding the item and written instantly'''
         self.read()
         self.entries.append(item)
         self.write()

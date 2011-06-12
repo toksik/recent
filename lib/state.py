@@ -1,9 +1,17 @@
 class RecentState:
+    '''Class that maintains a file for marking news posts as old'''
     def __init__(self, path):
+        '''\
+Returns a new RecentState instance the uses the given <path>
+
+  path -> the path of the state file
+
+It will be read on deamand.'''
         self.path = path
         self.values = {}
 
     def read(self):
+        '''Read the state file and store all ids in self.values'''
         f = open(self.path)
         self.values = {}
         for line in f.readlines():
@@ -21,6 +29,7 @@ class RecentState:
         f.close()
 
     def write(self):
+        '''Write all ids in self.values to the file'''
         f = open(self.path, 'wb')
         for id, entries in self.values.items():
             for entry in entries:
@@ -29,6 +38,13 @@ class RecentState:
         f.close()
 
     def add(self, id, entry):
+        '''\
+Mark a id as old
+
+  id -> the provider\'s id
+  entry -> the post\'s id
+
+The file will be parsed before to ensure consistency'''
         id = id.replace('_', '-')
         self.read()
         if id not in self.values:
@@ -38,6 +54,13 @@ class RecentState:
         self.write()
 
     def check(self, id, entry):
+        '''\
+Indicates whether the id is marked as old
+
+  id -> the provider\'s id
+  entry -> the post\'s id
+
+The file is parsed each time check() is called.'''
         id = id.replace('_', '-')
         self.read()
         if id in self.values and entry in self.values[id]:
