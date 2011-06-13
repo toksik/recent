@@ -8,7 +8,7 @@ import feedparser
 class FeedProvider(recent.providers.base.Provider):
     name = 'Feed'
     deps = ['inet']
-    config_keys = ['url', 'user', 'password', 'realm']
+    config_keys = ['url', 'user', 'password', 'realm', 'feed_name']
     config_doc = '''\
 The only required key is "url":
 
@@ -37,7 +37,10 @@ If it is password protected by HTTP Basic Authentification, "user",
         p = feedparser.parse(resp)
         if not p.entries:
             return False
-        author = p.feed.title
+        if self.config['feed_name']:
+            author = self.config['feed_name']
+        else:
+            author = p.feed.title
         for entry in p.entries[::-1]:
             if 'link' not in entry or 'title' not in entry \
                    or self.manager.state.check(self.id, entry.link):
