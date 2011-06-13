@@ -150,6 +150,19 @@ def do_open(args):
         open_url(lo.refs[args.link-1])
     elif entry.link:
         open_url(entry.link)
+    else:
+        lm = LogMarkup()
+        lm.buff = entry.title
+        _lo = LogOutputMarkup(width=0)
+        lm.parse(_lo)
+        lm = LogMarkup()
+        lm.buff = entry.body
+        lo = LogOutputMarkup(width=0)
+        lo.refs = list(_lo.refs)
+        lm.parse(lo)
+        if not lo.refs:
+            return
+        open_url(lo.refs[0])
 
 def do_get(args):
     hist = recent.history.RecentLog(args.history)
