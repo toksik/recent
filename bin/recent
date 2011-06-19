@@ -189,6 +189,20 @@ def do_get(args):
                 unread_count += 1
         print('%i/%i'%(new_count, unread_count))
 
+def do_mark(args):
+    hist = recent.history.RecentLog(args.history)
+    hist.read()
+    entry = hist.entries[::-1][args.num]
+    if args.mark == 'new':
+        if 'new' not in entry.tags:
+            entry.tags.append('new')
+        if 'unread' not in entry.tags:
+            entry.tags.append('unread')
+    elif args.mark == 'unread':
+        if 'unread' not in entry.tags:
+            entry.tags.append('unread')
+    hist.write()
+
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description='Tool for reading the news logs \
 of the recent daemon.')
@@ -222,6 +236,13 @@ of the recent daemon.')
     get_p.add_argument('--history', '-l', default=get_defhistory(),
                         help='Use another history file than $HOME/recent.log')
     get_p.set_defaults(func=do_get)
+    mark_p = subparser.add_parser('mark',
+                 help='Mark a post as new or unread')
+    mark_p.add_argument('num', type=int)
+    mark_p.add_argument('mark', nargs='?')
+    mark_p.add_argument('--history', '-l', default=get_defhistory(),
+                        help='Use another history file than $HOME/recent.log')
+    mark_p.set_defaults(func=do_mark)
     args = p.parse_args()
     if not os.path.isfile(args.history):
         f = open(args.history, 'w')
