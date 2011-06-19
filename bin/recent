@@ -60,7 +60,9 @@ def do_list(args):
             begin = '(%i)'%counter
         if args.color:
             _head = head[:w-(len(begin)+1)]
-            if 'new' in entry.tags and 'unread' in entry.tags:
+            if 'favorite' in entry.tags:
+                line = '%s \033[31m%s\033[0m\n'%(begin, _head)
+            elif 'new' in entry.tags and 'unread' in entry.tags:
                 line = '%s \033[1m%s\033[0m\n'%(begin, _head)
             elif 'unread' in entry.tags:
                 line = '%s \033[36m%s\033[0m\n'%(begin, _head)
@@ -68,7 +70,9 @@ def do_list(args):
                 line = '%s \033[0m%s\033[0m\n'%(begin, _head)
         else:
             head = head[:w-(len(begin)+4)]
-            if 'new' in entry.tags and 'unread' in entry.tags:
+            if 'favorite' in entry.tags:
+                line = '%s <3 %s\n'%(begin, head)
+            elif 'new' in entry.tags and 'unread' in entry.tags:
                 line = '%s *u %s\n'%(begin, head)
             elif 'unread' in entry.tags:
                 line = '%s  u %s\n'%(begin, head)
@@ -201,6 +205,9 @@ def do_mark(args):
     elif args.mark == 'unread':
         if 'unread' not in entry.tags:
             entry.tags.append('unread')
+    elif not args.mark or args.mark == 'favorite':
+        if 'favorite' not in entry.tags:
+            entry.tags.append('favorite')
     hist.write()
 
 if __name__ == '__main__':
