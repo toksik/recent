@@ -141,6 +141,10 @@ def do_open(args):
     hist = recent.history.RecentLog(args.history)
     hist.read()
     entry = hist.entries[::-1][args.num]
+    if 'new' in entry.tags:
+        entry.tags.remove('new')
+    if 'unread' in entry.tags:
+        entry.tags.remove('unread')
     if 'link' in args and args.link != None:
         lm = LogMarkup()
         lm.buff = entry.title
