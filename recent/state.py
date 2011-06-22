@@ -12,16 +12,17 @@ It will be read on deamand.'''
 
     def read(self):
         '''Read the state file and store all ids in self.values'''
-        f = open(self.path)
+        f = open(self.path, 'rb')
         self.values = {}
         for line in f.readlines():
             if len(line) < 3:
                 continue
-            parts = line[:-1].split('_')
+            parts = line[:-1].split(b'_')
             if len(parts) < 2:
                 continue
-            id = parts[0]
-            entry = '_'.join(parts[1:])
+            id = parts[0].decode('utf-8')
+            entry = b'_'.join(parts[1:])
+            entry = entry.decode('utf-8')
             if id not in self.values:
                 self.values[id] = []
             if entry not in self.values[id]:
