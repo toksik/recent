@@ -81,14 +81,24 @@ It will register own handlers on the signals SIGTERM and SIGINT.'''
         self.log = log
         signal.signal(signal.SIGTERM, self.terminate)
         signal.signal(signal.SIGINT, self.terminate)
+        signal.signal(signal.SIGUSR1, self.update_signal)
 
-    def terminate(self, *args):
+    def terminate(self, sig, frame):
         '''Internal signal handler that deactivates all providers'''
         signal.signal(signal.SIGTERM, self.terminate)
         signal.signal(signal.SIGINT, self.terminate)
+        signal.signal(signal.SIGUSR1, self.update_signal)
         for provider in self.active:
             provider._deactivate()
         exit(0)
+
+    def update_signal(self, sig, frame):
+        '''Internal signal handler for SIGUSR1 that updates all providers'''
+        signal.signal(signal.SIGTERM, self.terminate)
+        signal.signal(signal.SIGINT, self.terminate)
+        signal.signal(signal.SIGUSR1, self.update_signal)
+        for provider in self.providers.values():
+            provider.last_update = 0
 
     def get_new_deps(self, dep_list):
         '''\
@@ -194,5 +204,6 @@ it in the history log. Note that it will block the configured
         '''Updates all providers that needs to'''
         signal.signal(signal.SIGTERM, self.terminate)
         signal.signal(signal.SIGINT, self.terminate)
+        signal.signal(signal.SIGUSR1, self.update_signal)
         for provider in self.active:
             provider._update()
