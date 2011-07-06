@@ -92,10 +92,10 @@ class FormattingMarkup:
                 elif is_path(text[i-len(word):]):
                     word = word + text[i]
                 elif text[i] == '.' and text[i-1].isnumeric() \
-                         and i < len(text) and text[i+1].isnumeric():
+                         and i < len(text)-1 and text[i+1].isnumeric():
                     word = word + text[i]
                 elif text[i] == ',' and text[i-1].isnumeric() \
-                         and i < len(text) and text[i+1].isnumeric():
+                         and i < len(text)-1 and text[i+1].isnumeric():
                     word = word + text[i]
                 elif is_shortcut(text[i-len(word):]):
                     word = word + text[i]
