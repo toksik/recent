@@ -50,6 +50,8 @@ Create a new Notification instance
             tags = ['new', 'unread']
         self.tags = []
         for tag in tags:
+            if not tag:
+                continue
             if not isinstance(tag, str):
                 self.tags.append(tag.decode('utf-8'))
             else:
